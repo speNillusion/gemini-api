@@ -19,6 +19,7 @@ class Gemini {
   private models: ModelConfig[];
 
   constructor() {
+    //Models Avaibles
     this.models = [
       { modelName: "gemini-1.5-flash", thinkingBudget: 8192 },
       { modelName: "gemini-2.0-flash", thinkingBudget: 16384 },
@@ -47,6 +48,7 @@ class Gemini {
     model: Models = "gemini-2.5-flash"
   ): Promise<any> {
     try {
+      // Object of Response Stream to All Models
       const response: any = await this.ai.models.generateContentStream({
         model: model,
         contents: prompt,
