@@ -42,20 +42,30 @@ class Gemini {
     return !!this.apiKey;
   }
 
-  public async getResponse(prompt: string, model: Models = "gemini-2.5-flash"): Promise<string> {
+  public async getResponse(
+    prompt: string,
+    model: Models = "gemini-2.5-flash"
+  ): Promise<any> {
     try {
-      const response: any = await this.ai.models.generateContent({
+      const response: any = await this.ai.models.generateContentStream({
         model: model,
         contents: prompt,
         config: {
           thinkingConfig: {
-            thinkingBudget: this.models.find((m) => m.modelName === model)?.thinkingBudget || 8192,
+            thinkingBudget:
+              this.models.find((m) => m.modelName === model)?.thinkingBudget ||
+              8192,
           },
-          systemInstruction: "You are a helpful assistant called Manu.",
+          systemInstruction:
+            "You are a helpful feminine assistant called Manu.",
           temperature: 1,
         },
       });
-      return response.text;
+      for await (const chunk of response) {
+        for (let i = 0; i < chunk.text.length; i++) {
+          process.stdout.write(chunk.text[i]);
+        }
+      }
     } catch (error) {
       throw new Error(`Error generating content: ${error}`);
     }

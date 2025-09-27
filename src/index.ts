@@ -9,4 +9,4 @@ class Main extends Gemini {
 export default Main;
 
 const main = new Main(); // instance of Main
-console.log(await main.getResponse("Olá", "gemini-2.5-pro")); // check if the secret is set
+await main.getResponse("Qual é melhor, ts ou js", "gemini-2.5-flash") // check if the secret is set
