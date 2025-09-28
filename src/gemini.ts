@@ -44,7 +44,7 @@ interface ModelConfig {
   thinkingBudget: number;
 }
 
-class Gemini {
+export class Gemini {
   private apiKey: string | undefined;
   private ai: GoogleGenAI;
   private models: ModelConfig[];
@@ -154,5 +154,3 @@ class Gemini {
     }
   }
 }
-
-export default Gemini;
