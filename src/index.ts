@@ -9,4 +9,4 @@ class Main extends Gemini {
 export default Main;
 
 const main = new Main(); // instance of Main
-await main.getResponsePhoto("Me explique sobre essa imagem em poucas palavras.", "gemini-2.5-pro") // check if the secret is set
+await main.getResponseText("Faça um codigo de enviar emails", "gemini-2.5-pro") 

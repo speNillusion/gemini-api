@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-import { createPartFromUri, createUserContent, FileSource, FileState, FileStatus, GoogleGenAI } from "@google/genai";
+import { createPartFromUri, createUserContent, FileSource, FileState, FileStatus, GenerateContentResponse, GoogleGenAI } from "@google/genai";
 dotenv.config();
 
 interface File_2 {
@@ -52,9 +52,7 @@ class Gemini {
   constructor() {
     //Models Avaibles
     this.models = [
-      { modelName: "gemini-1.5-flash", thinkingBudget: 8192 },
-      { modelName: "gemini-2.0-flash", thinkingBudget: 16384 },
-      { modelName: "gemini-2.5-flash", thinkingBudget: 24576 },
+      { modelName: "gemini-2.5-flash", thinkingBudget: 32768 },
       { modelName: "gemini-2.5-pro", thinkingBudget: 32768 },
     ];
     const apiKey: string | undefined = process.env.GEMINI_API_KEY;
@@ -80,10 +78,11 @@ class Gemini {
   ): Promise<void> {
     try {
       // Object of Response Stream to All Models
-      const response: any = await this.ai.models.generateContentStream({
+      const response: any = await this.ai.models.generateContent({
         model: model,
         contents: prompt,
         config: {
+          tools: [{ codeExecution: {} }],
           thinkingConfig: {
             thinkingBudget:
               this.models.find((m) => m.modelName === model)?.thinkingBudget ||
@@ -94,11 +93,27 @@ class Gemini {
           temperature: 1,
         },
       });
-      for await (const chunk of response) {
-        for (let i = 0; i < chunk.text.length; i++) {
-          process.stdout.write(chunk.text[i]);
+      // for await (const chunk of response) {
+      //   for (let i = 0; i < chunk.text.length; i++) {
+      //     process.stdout.write(chunk.text[i]);
+      //   }
+      // }
+
+      const parts: any[] = response?.candidates?.[0]?.content?.parts || [];
+      parts.forEach((part) => {
+        if (part.text) {
+          console.log(part.text);
         }
-      }
+
+        if (part.executableCode && part.executableCode.code) {
+          console.log(part.executableCode.code);
+        }
+
+        if (part.codeExecutionResult && part.codeExecutionResult.output) {
+          console.log(part.codeExecutionResult.output);
+        }
+      });
+
     } catch (error) {
       throw new Error(`Error generating content: ${error}`);
     }
@@ -106,7 +121,7 @@ class Gemini {
 
   public async getResponsePhoto(
     prompt: string,
-    model: Models = "gemini-2.5-flash"
+    model: Models = "gemini-2.5-pro"
   ): Promise<void> {
     try {
       const image: File_2 = await this.ai.files.upload({
